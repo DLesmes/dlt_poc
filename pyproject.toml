@@ -1,0 +1,11 @@
+[project]
+name = "dlt-poc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dlt==1.18.2",
+    "notebook==7.2.2",
+    "sqlmodel==0.0.27",
+]
