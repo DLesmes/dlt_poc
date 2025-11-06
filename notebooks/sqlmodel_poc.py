@@ -187,53 +187,74 @@ with Session(engine) as session:
 # ## inserting records
 state_1 = State(
     canonical_schema={
-    "schema_name": "bol_pod_canonical_schema",
-    "document_type": "bill_of_lading",
-    "identifiers": {
-        "bol_number": "",
-        "pro_number": "",
-        "scac": ""
-    },
-    "parties": {
-        "shipper": {},
-        "consignee": {},
-        "bill_to": {}
-    },
-    "shipment": {
-        "origin": {},
-        "destination": {},
-        "pickup_date": None,
-        "delivery_date": None,
-        "freight_terms": ""
-    },
-    "line_items": [
-        {
-            "description": "",
-            "quantity": 0,
-            "weight": 0.0,
-            "class": "",
-            "nmfc": ""
+        "trace_id": "fabpqz0l-7g2h-11ee-be56-0242ac120002",
+        "doc_id": "afsds-dsafs-fsdf-fs",
+        "workflow_id": "afsds-dsafs-fsdf-fs_wf_sdsf",
+        "tenant_id": "tt",
+        "step_id": "S01",
+        "extracted_data": {
+            "schema_name": "invoice_canonical_schema",
+            "document_type": "invoice",
+            "identifiers": {
+                "bol_number": "",
+                "pro_number": "",
+                "scac": ""
+            },
+            "parties": {
+                "shipper": {},
+                "consignee": {},
+                "bill_to": {}
+            },
+            "line_items": [
+                {
+                    "description": "",
+                    "quantity": 0,
+                    "weight": 0.0,
+                    "class": "",
+                    "nmfc": ""
+                }
+            ]
         }
-    ]
     }
 )
 
 state_2 = State(
     canonical_schema={
-    "schema_name": "pod_canonical_schema",
-    "document_type": "proof_of_delivery",
-    "identifiers": {
-        "bol_number": "",
-        "pro_number": "",
-        "scac": ""
-    },
-    "delivery_details": {
-        "delivered_to": {},
-        "delivery_date": None,
-        "delivery_time": None,
-        "signature": ""
-    },
-    "comments": "",
+        "trace_id": "fabpqz0l-7g2h-11ee-be56-0242ac120002",
+        "doc_id": "afsds-dsafs-fsdf-fssdf",
+        "workflow_id": "afsds-dsafs-fsdfdf-fs_wf_sdsf",
+        "tenant_id": "tt",
+        "step_id": "S03",
+        "extracted_data": {
+            "schema_name": "",
+            "document_type": "bill_of_lading",
+            "identifiers": {
+                "bol_number": "",
+                "pro_number": "",
+                "scac": ""
+            },
+            "parties": {
+                "shipper": {},
+                "consignee": {},
+                "bill_to": {}
+            },
+            "shipment": {
+                "origin": {},
+                "destination": {},
+                "pickup_date": None,
+                "delivery_date": None,
+                "freight_terms": ""
+            },
+            "line_items": [
+                {
+                    "description": "",
+                    "quantity": 0,
+                    "weight": 0.0,
+                    "class": "",
+                    "nmfc": ""
+                }
+            ]
+        }
     }
 )
 with Session(engine) as session:
@@ -246,7 +267,6 @@ with Session(engine) as session:
     states = session.exec(select(State)).all()
     for state in states:
         print(state)
-# %% [markdown]
-# ## canonical_schema field
+# %%
 state.canonical_schema
 # %%
