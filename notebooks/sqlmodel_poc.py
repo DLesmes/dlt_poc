@@ -40,7 +40,7 @@ with Session(engine) as session:
     for row in result:
         print(row)
 # %%
-# ##DDL - Data Definition Language
+# ## DDL - Data Definition Language
 class State(SQLModel, table=True):
     __tablename__ = "states"
     __table_args__ = (
@@ -56,9 +56,9 @@ class State(SQLModel, table=True):
             comment="Primary key for the states table"
         )
     )
-    canonical_schema: dict = Field(
+    extracted_data: dict = Field(
         sa_column=Column(
-            "canonical_schema", 
+            "extracted_data", 
             JSONB, 
             nullable=False,
             comment="A JSONB column to store the canonical schema"
@@ -147,9 +147,9 @@ class State(SQLModel, table=True):
             comment="Primary key for the states table"
         )
     )
-    canonical_schema: dict = Field(
+    extracted_data: dict = Field(
         sa_column=Column(
-            "canonical_schema", 
+            "extracted_data", 
             JSONB, 
             nullable=False,
             comment="A JSONB column to store the canonical schema"
@@ -186,13 +186,13 @@ with Session(engine) as session:
 # %% [markdown]
 # ## inserting records
 state_1 = State(
-    canonical_schema={
+    extracted_data={
         "trace_id": "fabpqz0l-7g2h-11ee-be56-0242ac120002",
         "doc_id": "afsds-dsafs-fsdf-fs",
         "workflow_id": "afsds-dsafs-fsdf-fs_wf_sdsf",
         "tenant_id": "tt",
         "step_id": "S01",
-        "extracted_data": {
+        "canonical_schema": {
             "schema_name": "invoice_canonical_schema",
             "document_type": "invoice",
             "identifiers": {
@@ -219,14 +219,14 @@ state_1 = State(
 )
 
 state_2 = State(
-    canonical_schema={
+    extracted_data={
         "trace_id": "fabpqz0l-7g2h-11ee-be56-0242ac120002",
         "doc_id": "afsds-dsafs-fsdf-fssdf",
         "workflow_id": "afsds-dsafs-fsdfdf-fs_wf_sdsf",
         "tenant_id": "tt",
         "step_id": "S03",
-        "extracted_data": {
-            "schema_name": "",
+        "canonical_schema": {
+            "schema_name": "bol_pod_canonical_schema",
             "document_type": "bill_of_lading",
             "identifiers": {
                 "bol_number": "",
@@ -267,6 +267,9 @@ with Session(engine) as session:
     states = session.exec(select(State)).all()
     for state in states:
         print(state)
+        print(state.extracted_data)
+
 # %%
-state.canonical_schema
+engine = create_engine(DATABASE_URL, echo=True)
 # %%
+state.extracted_data

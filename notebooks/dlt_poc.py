@@ -1,5 +1,6 @@
 # %% [markdown]
 # # dtl code notebook
+# dtl
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -8,6 +9,10 @@ import sqlalchemy as sa
 from dlt.sources.sql_database import sql_table
 from itertools import islice
 SOURCE_DB = os.getenv("DATABASE_URL")  # e.g. postgresql+psycopg://user:pass@host:5432/dbname
+# model
+from dataclasses import dataclass
+import uuid
+from datetime import datetime
 # %% [markdown]
 # ## query finction fro JSOB filtering
 def query_adapter_callback(query: sa.Select, table: sa.Table, incremental=None, engine=None) -> sa.Select:
@@ -40,18 +45,38 @@ a = [row for row in islice(states_resource, 2) if row is not None]
 a
 # %% [markdown]
 # ## creating a class to hold the data
-class State(dlt.Resource):
-    state_id: str
-    trace_id: str
-    doc_id: str
-    workflow_id: str
-    tenant_id: str
-    step_id: str
+# ## using dataclass
+@dataclass
+class StateModel:
+    state_id: uuid.UUID
+    trace_id: str | None
+    doc_id: str | None
+    workflow_id: str | None
+    tenant_id: str | None
+    step_id: str | None
     canonical_schema: dict
-    created_at: str | None = None
-    updated_at: str | None = None
+    created_at: datetime | None
+    updated_at: datetime | None
+
+def to_state_model(row: dict) -> StateModel:
+    cs = row.get("canonical_schema") or {}
+    return StateModel(
+        state_id=row["state_id"],
+        trace_id=cs.get("trace_id"),
+        doc_id=cs.get("doc_id"),
+        workflow_id=cs.get("workflow_id"),
+        tenant_id=cs.get("tenant_id"),
+        step_id=cs.get("step_id"),
+        canonical_schema=cs,
+        created_at=row.get("created_at"),
+        updated_at=row.get("updated_at"),
+    )
+
 # %% [markdown]
 # ## listing state objects
-states = [State(**row) for row in islice(states_resource, 2) if row is not None]
-states
-# %% [markdown
+states = [to_state_model(row) for row in islice(states_resource, 5) if row is not None]
+print(states)
+# %% [markdown]
+# ## end of notebook
+states[0]
+# %%
