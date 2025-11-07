@@ -270,6 +270,4 @@ with Session(engine) as session:
         print(state.extracted_data)
 
 # %%
-engine = create_engine(DATABASE_URL, echo=True)
-# %%
 state.extracted_data
