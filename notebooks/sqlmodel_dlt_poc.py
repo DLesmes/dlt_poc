@@ -136,7 +136,7 @@ if states:
 
     # Update shipper name
     states[0].extracted_data['canonical_schema']['parties']['shipper']['name'] = {
-        "value": "ABC Logistics",
+        "value": "XYZ Logistics",
         "confidence": 0.98
     }
 
