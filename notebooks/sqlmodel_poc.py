@@ -114,6 +114,8 @@ with Session(engine) as session:
         result = session.exec(text(
             "SELECT * FROM poc.states;"
         ))
+        for row in result:
+            print(row)
     except Exception as e:
         print(e)
 # %% [markdown]
