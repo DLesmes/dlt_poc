@@ -15,8 +15,9 @@ from typing import Any, Optional
 from dataclasses import dataclass, asdict
 import uuid
 from datetime import datetime
-# destination
-from dlt.destinations import postgres
+import json
+import psycopg
+
 # %% [markdown]
 # ## query finction fro JSOB filtering
 def query_adapter_callback(query: sa.Select, table: sa.Table, incremental=None, engine=None) -> sa.Select:
@@ -114,39 +115,38 @@ states[0].extracted_data.canonical_schema['parties']['shipper']['name'] = {
 }
 states[0]
 # %% [markdown]
-# ## load updates state object back to the database using dlt
-# preparing the row
-row = asdict(states[0])
-if isinstance(row.get("state_id"), object):
-    row["state_id"] = str(row["state_id"])
+# ## Load updated state object back to the database using raw SQL
+# This approach avoids dlt adding internal columns to the table
 
 # %% [markdown]
-# ### creating the source function
-@dlt.resource(
-        name="states",
-        write_disposition="merge",
-        primary_key="state_id",
-        columns={
-            "_dlt_load_id": {"nullable": True},
-            "_dlt_id": {"nullable": True}
-        }
-)
-def update_states():
-    yield row
+# ### Prepare the updated data
+updated_state = states[0]
+
+# Convert the extracted_data back to a JSONB-compatible dict
+updated_extracted_data = asdict(updated_state.extracted_data)
 
 # %% [markdown]
-# ### running the pipeline
-# Convert SQLAlchemy-style URL to plain PostgreSQL DSN for dlt
+# ### Update the record directly with SQL
+# Convert SQLAlchemy-style URL to plain PostgreSQL DSN
 dest_db = SOURCE_DB.replace("postgresql+psycopg://", "postgresql://").split("?")[0]
 
-update_pipe = dlt.pipeline(
-    "dlt_sqlmodel_poc",
-    destination=postgres(dest_db),
-    dataset_name="poc"
-)
+with psycopg.connect(dest_db) as conn:
+    with conn.cursor() as cur:
+        # Update the record using the state_id as the key
+        cur.execute("""
+            UPDATE poc.states
+            SET extracted_data = %s,
+                updated_at = NOW()
+            WHERE state_id = %s
+        """, (
+            json.dumps(updated_extracted_data),  # Convert dict to JSON string
+            str(updated_state.state_id)
+        ))
 
-# %% [markdown]
-# ### executing the pipeline
-info = update_pipe.run(update_states())
-print(info)
+        rows_affected = cur.rowcount
+        conn.commit()
+
+        print(f"✓ Successfully updated {rows_affected} row(s)")
+        print(f"  State ID: {updated_state.state_id}")
+        print(f"  Updated extracted_data with new canonical_schema")
 
